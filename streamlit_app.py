@@ -4,6 +4,7 @@ import pandas as pd
 import psycopg2
 from dotenv import load_dotenv
 from openai import OpenAI
+import google.generativeai as genai
 import os
 import bcrypt
 
@@ -153,16 +154,17 @@ def run_query(sql):
 
 @st.cache_resource
 def get_openai_client():
-    """Create and cache OpenAI client."""
-    return OpenAI(api_key=OPENAI_API_KEY)
+    """Create and cache Gemini model (we reuse OPENAI_API_KEY for Gemini)."""
+    genai.configure(api_key=OPENAI_API_KEY)
+    # You can switch to "gemini-1.0-pro" if you want
+    return genai.GenerativeModel("models/gemini-2.0-flash-lite")
 
 def extract_sql_from_response(response_text):
-    clean_sql = re.sub(r"^```sql\s*|\s*```$", "", response_text, flags=re.IGNORECASE | re.MULTILINE).strip()
+    clean_sql = re.sub(r"^sql\s*|\s*$", "", response_text, flags=re.IGNORECASE | re.MULTILINE).strip()
     return clean_sql
 
-
 def generate_sql_with_gpt(user_question):
-    client = get_openai_client()
+    model = get_openai_client()
     prompt = f"""You are a PostgreSQL expert. Given the following database schema and a user's question, generate a valid PostgreSQL query.
 
 {DATABASE_SCHEMA}
@@ -181,22 +183,14 @@ Requirements:
 Generate the SQL query:"""
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a PostgreSQL expert who generates accurate SQL queries based on natural language questions."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.1,
-            max_tokens=1000
-        )
-        
-        sql_query = extract_sql_from_response(response.choices[0].message.content)
+        # Call Gemini instead of OpenAI
+        response = model.generate_content(prompt)
+        sql_query = extract_sql_from_response(response.text)
         return sql_query
-    
+
     except Exception as e:
-        st.error(f"Error calling OpenAI API: {e}")
-        return None, None
+        st.error(f"Error calling Gemini API: {e}")
+        return None
 
 def main():
     require_login()
