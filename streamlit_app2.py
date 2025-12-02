@@ -12,7 +12,7 @@ import bcrypt
 load_dotenv()
 
 # --- Configuration for Gemini API ---
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+GEMINI_API_KEY  = st.secrets["OPENAI_API_KEY"]
 HASHED_PASSWORD = st.secrets["HASHED_PASSWORD"].encode("utf-8")
 # --- End Configuration ---
 
@@ -93,7 +93,7 @@ def require_login():
         login_screen()
         st.stop()
 
-# ------------------------
+# ------------------------    
 # Database Functions
 # ------------------------
 @st.cache_resource
@@ -124,7 +124,7 @@ def run_query(sql):
 # ------------------------
 @st.cache_resource
 def get_gemini_client():
-    return genai.Client(api_key=OPENAI_API_KEY)
+    return genai.Client(api_key=GEMINI_API_KEY )
 
 def extract_sql_from_response(response_text):
     return re.sub(r"^```sql\s*|\s*```$", "", response_text, flags=re.IGNORECASE | re.MULTILINE).strip()
