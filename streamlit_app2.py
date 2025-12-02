@@ -1,4 +1,15 @@
+# streamlit_app2.py (top of file)
+import sys
 
+try:
+    from google import genai
+except Exception as e:
+    # Clear, actionable error for deploy logs / console
+    raise ImportError(
+        "Missing or broken Google GenAI SDK. Ensure `google-genai` is installed "
+        "in the runtime and no local module named `google` exists in your repo. "
+        f"Original error: {e}"
+    )
 import re
 import streamlit as st
 import pandas as pd
