@@ -11,7 +11,7 @@ import bcrypt
 
 load_dotenv()  # reads variables from a .env file and sets them in os.environ
 
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+GEMINI_API_KEY  = st.secrets["OPENAI_API_KEY"]
 HASHED_PASSWORD = st.secrets["HASHED_PASSWORD"].encode("utf-8")
 
 
@@ -155,7 +155,7 @@ def run_query(sql):
 @st.cache_resource
 def get_openai_client():
     """Create and cache Gemini model (we reuse OPENAI_API_KEY for Gemini)."""
-    genai.configure(api_key=OPENAI_API_KEY)
+    genai.configure(api_key=GEMINI_API_KEY )
     # You can switch to "gemini-1.0-pro" if you want
     return genai.GenerativeModel("models/gemini-2.0-flash-lite")
 
@@ -316,3 +316,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
